@@ -1,0 +1,14 @@
+html,body,h1,h2,h3,h4,h5,h6 {
+    font-family: "Catamaran", sans-serif; line-height: 1.42;
+}
+
+.font-weight-mid { font-weight: 500 !important; }
+
+.form-input.square { height: 30px; width: 100px; }
+.form-input.medium { width: 100px; }
+
+.odds-table { border-left: solid 1px grey; border-top: solid 1px grey; }
+.odds-table th, .odds-table td { padding: 10px 15px; border-right: solid 1px grey; border-bottom: solid 1px grey; }
+
+.match-table th:nth-child(9), .match-table td:nth-child(9) { border-left: double 10px }
+
