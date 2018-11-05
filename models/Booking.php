@@ -56,6 +56,11 @@ class Booking extends Model {
 
                 $result_set[] = $this->addRecord( [$table, $columns, $values, $where], $update_values );
 
+                Utils::pr([
+                    '$update_values' => $update_values,
+                    '$where' => $where,
+                    '$result_set' => $result_set,
+                ]);
             }
         }
 
