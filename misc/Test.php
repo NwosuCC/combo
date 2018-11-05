@@ -1,7 +1,6 @@
 <?php
 
 class Test {
-    private $_archive;
 
     private $games_per_slip;
     private $slips;
@@ -18,28 +17,34 @@ class Test {
     }
 
     private function run($type = ''): array {
-        if( ! $type) { return []; }
+        $dummy = [ [], [] ];
 
-        $Booking = new Booking($stake = 50);
+        if( ! $type) { return $dummy; }
 
-        $n = 1;
+        /*$n = 1;
         while($match = $this->getFixture($n, $n+1) and $n += 2 ) {
             $betProps = $this->getBet();
             $Booking->addGame($match, $betProps);
-        }
+        }*/
+
+        // --test
+        $id_ticket = '3';
 
         try {
-            return $Booking->getPartialAccumulation(
-             $this->games_per_slip, $this->slips, $this->interval
-            );
+            switch ($type) {
+                case 'PA' : {
+                    return (new Ticket($id_ticket))->getPartialAccumulation( $this->games_per_slip, $this->slips, $this->interval );
+                } break;
+            }
+
 
         } catch (Error $error) {
             echo $error->getMessage();
-            return [ [], [] ];
+            return $dummy;
         }
     }
 
-    private function getFixture($home_id, $away_id) {
+    /*private function getFixture($home_id, $away_id) {
         $home = (new Club( $home_id ));
         $home_league = $home->getLeague();
 
@@ -53,15 +58,15 @@ class Test {
         }
 
         return null;
-    }
+    }*/
 
-    private function getOdd() {
+    /*private function getOdd() {
         $decimal = (float) number_format(0.05 * abs(rand(0,19)), 2);
         $integer = $decimal >= 0.45 ? 1 : 2;
         return $integer + $decimal;
-    }
+    }*/
 
-    private function getBet() {
+    /*private function getBet() {
         $random_index_1 = array_rand(Model::BETS);
         $random_index_2 = array_rand( Model::BETS[$random_index_1] );
 
@@ -70,7 +75,7 @@ class Test {
         $odd = $this->getOdd();
 
         return compact('code', 'bet', 'odd');
-    }
+    }*/
 
 }
 

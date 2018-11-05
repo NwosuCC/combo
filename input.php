@@ -15,7 +15,8 @@ if(empty( $_POST['input'] )) {
         case 'league' : { $result = (new League())->create($post); } break;
         case 'club' : { $result =  (new Club())->create($post); } break;
         case 'match' : { $result =  (new Match())->create($post); } break;
-        case 'booking' : { $result =  (new Booking())->create($post); } break;
+        case 'bet' : { $result =  (new Bet())->create($post); } break;
+        case 'ticket' : { $result =  (new Ticket())->create($post); } break;
     }
 
     $result = [ 'data' => $result ];

@@ -1,7 +1,7 @@
 
 const GLOBAL_VAR = (function () {
   let Repo = {
-    countries: [], leagues: [], bookings: {}
+    countries: [], leagues: [], bets: [], tickets: []
   };
 
   return {

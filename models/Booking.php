@@ -1,149 +1,66 @@
 <?php
 
 class Booking extends Model {
-    private $ticket;
-    private $stake;
-
-    private $games = [];
+    private $ticket, $match, $bet, $odd;
 
     public function __construct( $id = '' ) {
         parent::__construct( $this->schema() );
 
         if( $id and $record = $this->get( $id )->first() ) {
             $this->id = $record['id'];
-            $this->ticket = $record['ticket'];
-            $this->stake = $record['stake'];
+            $this->ticket = $record['id_ticket'];
+            $this->match = $record['id_match'];
+            $this->bet = $record['id_bet'];
+            $this->odd = $record['odd'];
         }
-    }
-
-    public function addGame(Match $match, array $props) {
-        $this->games[] = [
-            'country' => $match->getLeague()->getCountry(),
-            'league' => $match->getLeague()->getName(),
-            'match' => $match->label(),
-            'code' => $props['code'],
-            'bet' => $props['bet'],
-            'odd' => $props['odd'],
-        ];
-    }
-
-    public function getTickets(): array {
-        $all_records = $this->get()->all();
-        $bookings = [];
-
-        foreach ($all_records as $i => $row) {
-            $name = $row['ticket'];
-            $bookings[$name][] = $row;
-        }
-        return array_values( $bookings );
-    }
-
-    public function getGames(): array {
-        return $this->games;
-    }
-
-    public function gamesCount(): int {
-        return count($this->games);
-    }
-
-    /*public function getCombinations(int $r): array {
-        $n = $this->gamesCount();
-        // do combinations: n C r = n! / (r! * (n-r)!)
-        return [];
-    }*/
-
-    public function getPartialAccumulation(int $games_per_slip = 0, int $slips = 1, int $interval = 0): array {
-        $matches = $this->getGames();
-        $total_count = $this->gamesCount();
-        $groups = [];
-
-        if($slips === 1 && $games_per_slip === 0) {
-            $games_per_slip = $total_count;
-        }
-
-        if($slips < 1 or $games_per_slip < 0 or $interval < 0) {
-            $error = 'Minimum values: [slips] = 1, [games_per_slip] = 0, [interval] = 0';
-            $code = 2;
-            throw new Error($error, $code);
-
-        }else if($this->gamesCount() < $games_per_slip) {
-            $error = 'Supplied [games_per_slip] ('.$games_per_slip.') exceeds the available games ('.$total_count.')';
-            $code = 3;
-            throw new Error($error, $code);
-
-        }else if( ($int = $interval > $games_per_slip) or ($slp = $slips > $games_per_slip) ) {
-            $param = $int ? '[interval] ('.$interval.')' : '[slips] ('.$slips.')';
-            $error = 'Supplied '. $param . ' exceeds the supplied [games_per_slip] ('.$games_per_slip.')';
-            $code = 3;
-            throw new Error($error, $code);
-        }
-
-        for ($slip_index = 0; $slip_index < $slips; $slip_index++) {
-            $name = chr(65 + $slip_index);
-            $first_odd_index = $slip_index * $interval;
-            $groups[] = $name;
-
-            $from_zero = 0;
-            $group_cumulative_odds = 1;
-
-            $group = [];
-
-            for ($offset = 0; $offset < $games_per_slip; $offset++) {
-                $current_pos = $first_odd_index + $offset;
-                $odd_index = $current_pos < $total_count ? $current_pos : ($from_zero++);
-
-                $group_cumulative_odds *= $matches[ $odd_index ]['odd'];
-
-                $matches[ $odd_index ]['groups'][$name][ $odd_index + 1 ] = [
-                    'odd_index' => $odd_index,
-                    'marker' => ($offset === 0) ? '[x]' : 'x',
-                    'cumulative_odds' => $group_cumulative_odds,
-                    'cumulative_amount' => $group_cumulative_odds * $this->stake,
-                ];
-
-                $group[$odd_index + 1] = $matches[ $odd_index ]['groups'][$name][ $odd_index + 1 ];
-            }
-        }
-
-        return [$matches, $groups];
     }
 
     public function schema() {
         return [
-            'booking', ['ticket', 'stake', 'id_match', 'bet', 'odd', 'status']
+            'booking', ['id_match', 'id_bet', 'odd', 'id_ticket', 'outcome']
         ];
     }
 
-    public function create(Array $data) {
+    public function create( Ticket $ticket, Array $data ) {
         $count = $data['count'];
-        $stake = $data['stake'];
+        $ticket_name = $data['name'];
+        $ticket_id = $ticket->id();
 
-        if($count > 12){
-            throw new Error("Cannot push more than 12 bookings at a time");
-        }else if($stake < 50) {
-            throw new Error("Minimum stake is 50");
+        if( !$ticket or !$ticket_id or $ticket_name !== $ticket->getName() ) {
+            throw new Error("Ticket with name [{$ticket_name}] not found");
         }
 
+        list($table, $columns) = $this->schema();
         $result_set = [];
 
         for($n = 1; $n <= $count; $n++) {
             $match = (new Match( $data["match_{$n}"] ));
 
             if( $match->id() and ! $match->isStarted() ){
-                list($table, $columns) = $this->schema();
 
-                $props = ['ticket', 'stake', "match_{$n}", "bet_{$n}", "odd_{$n}"];
-                $values = [ Utils::arraySliceParts($props, $data) ];
-                $values[0][] = '0'; // status
+                $values = [ Utils::arraySliceParts(["match_{$n}", "bet_{$n}", "odd_{$n}"], $data) ];
+                $values[0]['id_ticket'] = $ticket_id;
+                $values[0]['outcome'] = '0';
 
                 $id_match = $values[0]["match_{$n}"];
-                $ticket = $values[0]["ticket"];
+                $id_bet = $values[0]["bet_{$n}"];
+                $odd = $values[0]["odd_{$n}"];
 
-                $where = [
-                    "id_match = ?1 AND ticket = ?2 AND deleted = 0", [ $id_match, $ticket ]
+                $update_values = [
+                    'id_match' => $id_match, 'id_bet' => $id_bet, 'odd' => $odd,
                 ];
 
-                $result_set[] = $this->addRecord( [$table, $columns, $values, $where] );
+                $where = [
+                    "id_match = ?1 AND id_ticket = ?2 AND deleted = 0", [ $id_match, $ticket_id ]
+                ];
+
+                $result_set[] = $this->addRecord( [$table, $columns, $values, $where], $update_values );
+
+                Utils::pr([
+                    '$update_values' => $update_values,
+                    '$where' => $where,
+                    '$result_set' => $result_set,
+                ]);
             }
         }
 

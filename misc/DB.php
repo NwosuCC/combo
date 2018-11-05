@@ -70,6 +70,13 @@ class DB {
         return $this->sql_string;
     }
 
+    /* Example usage: Shows usage of the 'q|' modifier ( also implemented in 'DB::where()' method )
+     *  $delivery = "IF( MINUTE( TIMEDIFF(now(), created_at) ) BETWEEN 1 AND 2, 1, delivery)";
+        $update_values = [
+            'p_total' => $total, 'p_current' => $current, 'hits' => 'q|hits + 1',
+            'count' => $reviewsCount, 'delivery' => "q|$delivery"
+        ];
+     */
     private function add_single_quotes(Array $values){
         foreach($values as $key => $value){
             $quote_index = strpos($value,"'");
@@ -85,7 +92,9 @@ class DB {
     }
 
     private function where(Array $where){
-        if( ! $where or !is_array($where)){ return ''; }
+        if( !$where){
+            throw new Error('where() Example: [ "name = ?2 OR email = ?3", [$name, $email] ]');
+        }
 
         if(count($where) < 2){ $where[] = []; }
 
@@ -114,6 +123,12 @@ class DB {
                 $this->rows[] = $row;
             }
         }
+    }
+
+    public function limit( int $length, int $start = 0 ){
+        $this->sql_string .= " LIMIT {$start}, {$length}";
+        $this->run_sql()->fetch();
+        return $this->rows;
     }
 
     public function all(){

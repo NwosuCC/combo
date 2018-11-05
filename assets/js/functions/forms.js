@@ -5,7 +5,7 @@ const FormHandlers = (function () {
     leagueForm: 'league',
     clubForm: 'club',
     matchForm: 'match',
-    bookingForm: 'booking',
+    ticketForm: 'ticket',
   };
 
   const FormHandlersObj = {
@@ -131,7 +131,7 @@ const FormHandlers = (function () {
       GLOBAL_VAR.append('clubs', club);
 
       let value = club.id, text = club.name;
-      console.log('addNewClub value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
+      // console.log('addNewClub value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
 
       $('.select-clubs').each(function (i,e) {
         $(this).append( FormHandlersObj.getOption( value, text, {} ) )
@@ -148,7 +148,7 @@ const FormHandlers = (function () {
 
       let value = match.id, text = match.club_1.code + ' vs ' + match.club_2.code;
       let title = match.club_1.name + ' vs ' + match.club_2.name;
-      console.log('addNewMatch value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
+      // console.log('addNewMatch value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
 
       $('.select-matches').each(function (i,e) {
         $(this).append( FormHandlersObj.getOption( value, text, { title }) )
@@ -158,61 +158,80 @@ const FormHandlers = (function () {
       let cleanValue = value.trim(), inValid = (/[^A-z0-9_]/gi).exec(cleanValue);
 
       if(elem && elem.is('select') && cleanValue && !inValid) {
-        GLOBAL_VAR.append('tickets', value);
-        elem.append( FormHandlersObj.getOption( value, value, {}) );
+        GLOBAL_VAR.append('tickets', { id: cleanValue, name: cleanValue, bookings: [] });
+        elem.append( FormHandlersObj.getOption( cleanValue, cleanValue, {}) );
         return true;
       }
     },
     addTempBooking() {
-      let formId = 'bookingForm', form = $(`#${formId}`), values = FormUtil.values( form );
+      let formId = 'ticketForm', form = $(`#${formId}`), values = FormUtil.values( form );
       values.input = formInputs[ formId ];
       values = FormHandlersObj.stripFormLabel( values );
 
-      let ticket = values.ticket, stake = values.stake;
+      let id_ticket = values.name, stake = values.stake;
 
-      let bookings = GLOBAL_VAR.get('bookings');
-      let index = bookings.findIndex(b => b.length && b[0].ticket === ticket), newValues = [];
+      let tickets = GLOBAL_VAR.get('tickets'), index = tickets.findIndex(t => t.id === id_ticket);
+      let ticket = index >= 0 ? tickets[ index ] : null, name = ticket ? ticket.name : '';
 
-      let n = 1, valid = true, required = ['id_match','bet', 'odd', 'code'];
+      if(ticket) {
+        let n = 1, valid = true, bookings = [], required = ['id_match','id_bet', 'odd'];
 
-      do {
-        let row = {
-          bet: values[`bet_${n}`], code: '', id: `t${n}`, id_match: values[`match_${n}`],
-          odd: values[`odd_${n}`], stake: stake, status: "0", ticket: ticket
+        do {
+          let row = {
+            id: `b${n}`, id_bet: values[`bet_${n}`], id_match: values[`match_${n}`],
+            id_ticket: id_ticket, odd: values[`odd_${n}`], outcome: '0'
+          };
+          row.odd = StringUtil.asNumber( row.odd );
+
+          valid = Object.keys(row).filter( k => required.includes(k) ).some( k => !!row[k] );
+          if( valid ) { bookings.push( row ); }
+          // console.log('valid :'+valid+' | n: '+n, ' | row; ', row);
+
+          n += valid ? 1 : -1;
+        }
+        while(valid);
+
+        let newValues = {
+          name: name, stake: stake, status: "0", id: id_ticket, bookings: bookings
         };
+        // console.log('name :'+name, ' | newValues; ', newValues);
 
-        valid = Object.keys(row).filter( k => required.includes(k) ).some( k => !!row[k] );
-        if( valid ) { newValues.push( row ); }
-        n += valid ? 1 : -1;
+        // if( ! newValues.length ) { return; }
+        if( n <= 0 ) { return; }
+
+        (index >= 0) ? GLOBAL_VAR.update( 'tickets', newValues, index)  : GLOBAL_VAR.append( 'tickets', newValues );
+        // console.log('new tickets:', GLOBAL_VAR.get('tickets'));
+
+        $('#ticket_count').val( n );
+
+        $('[name^="ticket_odd"]').each(function (i,e) {
+          if( $(this).val() === '0' ){ $(this).val('0.00'); }
+        });
       }
-      while(valid);
-
-      if( ! newValues.length ) { return; }
-
-      $('#booking_count').val( n );
-      (index >= 0) ? GLOBAL_VAR.update( 'bookings', newValues, index)  : GLOBAL_VAR.append( 'bookings', newValues )
     },
-    displayTicket( ticket ) {
-      let bookings = GLOBAL_VAR.get('bookings');
-      let ticketBooks = bookings.find(b => b.length && b[0].ticket === ticket) || [];
+    displayTicket( id_ticket ) {
+      let tickets = GLOBAL_VAR.get('tickets'), ticket = tickets.find(t => t.id === id_ticket);
+      let ticketBookings = ticket ? ticket.bookings : [];
 
-      if(ticketBooks.length) {
-        $('#bookingForm')[0].reset();
+      if( ticket ) {
+        $('#ticketForm')[0].reset();
 
-        $(`#booking_ticket`).val( ticketBooks[0].ticket );
-        $(`#booking_stake`).val( ticketBooks[0].stake );
-        $(`#booking_count`).val( ticketBooks.length );
+        $(`#ticket_name`).val( ticket.id );
+        $(`#ticket_stake`).val( ticket.stake );
+        $(`#ticket_count`).val( ticketBookings.length );
 
-        ticketBooks.forEach((book, i) => {
-          let sn = (i+1);
-          $(`#booking_match${sn}`).val( book.id_match ).trigger('change');
-          $(`#booking_bet${sn}`).val( book.bet );
-          $(`#booking_odd${sn}`).val( book.odd );
-        })
+        if(ticketBookings.length) {
+          ticketBookings.forEach((book, i) => {
+            let sn = (i+1);
+            $(`#ticket_match${sn}`).val( book.id_match ).trigger('change');
+            $(`#ticket_bet${sn}`).val( book.id_bet );
+            $(`#ticket_odd${sn}`).val( book.odd );
+          })
+        }
       }
     }
     /*addSavedBooking( booking ) {
-      if(booking && Array.isArray(booking)){ GLOBAL_VAR.append('bookings', booking); }
+      if(booking && Array.isArray(booking)){ GLOBAL_VAR.append('tickets', booking); }
     },*/
 
   };

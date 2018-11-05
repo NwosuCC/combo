@@ -95,27 +95,34 @@ const StringUtil = (function () {
     },
     asCurrency(number, useGrouping) {
       useGrouping = useGrouping !== false;
-
       number = StringUtilObj.asNumber(number);
-      number = parseFloat(ObjectUtil.sanitizeValue(number, 0).toString());
-      if (isNaN(number)) { number = 0; }
-
       return number.toLocaleString(undefined, {useGrouping, minimumFractionDigits: 2, maximumFractionDigits: 2});
     },
     asNumber(number) {
-      return number.split(",").join("");
+      number = ObjectUtil.sanitizeValue(number);
+      number = Number( String(number).split(",").join("") );
+      return (!isNaN(number)) ? number : 0;
     },
     withOptionalDecimal(number) {
-      let newNumber = StringUtilObj.asNumber(number), splitNewNumber = newNumber.split('.');
+      let newNumber = StringUtilObj.asNumber(number), splitNewNumber = String(newNumber).split('.').map( n => Number(n) );
       let [integer, fraction] = splitNewNumber;
-      return ( Number(fraction) ) ? newNumber : integer;
+      return ( fraction ) ? newNumber : integer;
     },
+    ifNotEmpty(value) {
+      if(!isNaN(value)){ value = Number(value); }
+      return ! ObjectUtil.isEmpty( value ) ? value : '';
+    },
+    /* ===========================
+     * Specifically for this App */
     asSeason(year) {
       if(isNaN(year) || String(year).length !== 4) { return ''; }
       return String(year) + ' / ' + String(year + 1);
     },
-    ifNotEmpty(value) {
-      return ! ObjectUtil.isEmpty( value ) ? value : '';
+    shortLeagueName(league) {
+      return ( league && league._key === 'EPL') ? league._key : league.name;
+    },
+    matchStat(match) {
+      return ( match ) ? `${match.club_1.code} vs ${match.club_2.code}` : '';
     },
 
   };

@@ -35,7 +35,7 @@ const updateModelRelations = (data) => {
     let countries = data.countries, leagues = data.leagues;
 
     data.leagues = leagues.map( league => {
-      league.country = countries.find( ctr => ctr.id === league.id_country);
+      league['country'] = countries.find( ctr => ctr.id === league['id_country']);
       return league;
     });
 
@@ -43,7 +43,7 @@ const updateModelRelations = (data) => {
       let clubs = data.clubs;
 
       data.clubs = clubs.map( club => {
-        club.league = leagues.find( lg => lg.id === club.id_league);
+        club['league'] = leagues.find( lg => lg.id === club['id_league']);
         return club;
       });
 
@@ -51,22 +51,30 @@ const updateModelRelations = (data) => {
         let matches = data.matches;
 
         data.matches = matches.map( match => {
-          match.club_1 = clubs.find( cl => cl.id === match.id_club_1);
-          match.club_2 = clubs.find( cl => cl.id === match.id_club_2);
-          match.league = leagues.find( lg => lg.id === match.id_league);
+          match['club_1'] = clubs.find( cl => cl.id === match['id_club_1']);
+          match['club_2'] = clubs.find( cl => cl.id === match['id_club_2']);
+          match['league'] = leagues.find( lg => lg.id === match['id_league']);
           return match;
         });
       }
     }
 
-    if(data.hasOwnProperty('bookings')){
-      data.tickets = data.bookings.map( book => Array.isArray(book) && book.length ? book[0].ticket : '').filter(b => !!b);
+    if(data.hasOwnProperty('tickets')){
       data.savedTickets = data.tickets.concat([]);
+
+      if(data.hasOwnProperty('bookings')){
+        let matches = data.matches, bets = data.bets, bookings = data.bookings;
+
+        data.bookings = bookings.map( book => {
+          book['match'] = matches.find( match => match.id === book.id_match);
+          book['bet'] = bets.find( bet => bet.id === book.id_bet);
+          return book;
+        });
+      }
     }
 
     return data;
   }
-
 
   return [];
 };
@@ -193,24 +201,24 @@ $(document).ready(function () {
     }, '.add-btn, .ok-btn, .x-btn')
     .on({
       change() {
-        let ticket = $(this).val(), savedTickets = GLOBAL_VAR.get('savedTickets');
+        let id_ticket = $(this).val(), savedTickets = GLOBAL_VAR.get('savedTickets');
         let saveBtn = $('#saveBooking'), spanNew = saveBtn.find('span.x-show'), spanUpdate = saveBtn.find('span.x-hide');
 
-        if( ticket ) { FormHandlers.displayTicket( ticket ); }
+        if( id_ticket ) { FormHandlers.displayTicket( id_ticket ); }
 
-        if( ticket && savedTickets.includes( ticket ) ) {
+        if( id_ticket && savedTickets.find( t => t.id === id_ticket ) ) {
           spanNew.hide(); spanUpdate.show();
         }else{
           spanNew.show(); spanUpdate.hide();
         }
       }
-    }, '#booking_ticket')
+    }, '#ticket_name')
     .on({
       change() {
-        if( $(this).attr('id') === 'booking_ticket' ) { return; }
+        if( $(this).attr('id') === 'ticket_name' ) { return; }
         FormHandlers.addTempBooking();
       }
-    }, '#bookingForm input, #bookingForm select')
+    }, '#ticketForm input, #ticketForm select')
   ;
 
 

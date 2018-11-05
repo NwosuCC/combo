@@ -8,9 +8,17 @@ $clubs = (new Club())->get()->all();
 
 $matches = (new Match())->get()->all();
 
-$bookings = (new Booking())->getTickets();
+$bets = (new Bet())->get()->all();
 
-//[$matches, $groups] = (new Test())->run_PA();
+$tickets = (new Ticket())->withBookings();
+
+
+[$bookings, $groups] = (new Test())->run_PA();
+
+/*Utils::pr([
+    '$bookings' => $bookings,
+    '$groups' => $groups,
+]);*/
 
 $items = [
     [
@@ -56,8 +64,8 @@ $labels = ['Match', /*'Code',*/ 'Bet', 'Odd'];
 echo json_encode(
     compact(
         'items', 'opts', 'games', 'labels',
-        'groups',
-        'countries', 'leagues', 'clubs', 'matches', 'bookings'
+        'countries', 'leagues', 'clubs', 'matches',
+        'bets', 'tickets', 'bookings', 'groups'
     )
 );
 

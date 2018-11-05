@@ -13,7 +13,7 @@ class Model {
     ];
 
 
-    protected $db, $schema;
+    protected $db, $schema, $where = [];
 
     protected $id = '';
 
@@ -29,35 +29,55 @@ class Model {
         return $this->getRecord( $id );
     }
 
-    protected function getId( $id ) {
+    protected function find( $id ) {
         $this->db->id();
         return $this->getRecord( $id );
     }
 
-    public function find( $id = '') {
-        return $this->getId( $id );
+    /*protected function with( $schema ) {
+        list($table_A, $columns_A) = $this->schema;
+        list($table_B, $columns_B) = $schema;
+
+
+        return $this;
+    }*/
+
+    protected function where( Array $where ) {
+        if( !$where){
+            throw new Error('where() Example: [ "name = ?2 OR email = ?3", [$name, $email] ]');
+        }
+        else if( stristr($where[0], '?1')){
+            throw new Error("'WHERE...' clause placeholders must not include '?1'");
+        }
+
+        if(count($where) < 2){ $where[] = []; }
+
+        $this->where = $where;
+
+        return $this;
     }
 
     protected function addRecord( Array $record, $update_values = [] ) {
         list( $table, $columns, $values, $where ) = $record;
 
         if($update_values and is_array($update_values)) {
-            $new_id = $this->db->insert( $table, $columns, $values, $update_values );
+            return $this->db->insert( $table, $columns, $values, $update_values );
         }else{
-            $new_id = $values and $this->db->insertUnique( $table, $columns, $values, $where );
+            return $values ? $this->db->insertUnique( $table, $columns, $values, $where ) : null;
         }
-
-        return $new_id ? $this->db->getLastInsert( $table, $columns ) : null;
     }
 
     protected function getRecord(string $id = '') {
         list($table, $columns) = $this->schema;
         if( ! array_search('id', $columns)){ $columns[] = 'id'; }
 
-        $where = [ "deleted = 0", [] ];
-        if($id) {
-            $where[0] .= " AND id = ?1";
-            $where[1][] = $id;
+        $where = $id ? [ "deleted = 0 AND id = ?1", [$id] ] : [ "deleted = 0", [''] ];
+
+        if($this->where) {
+            $where[0] .= " AND ({$this->where[0]})";
+            foreach ($this->where[1] as $var){ $where[1][] = $var; }
+
+            $this->where = [];
         }
 
         $this->db->select($table, $columns, $where);
