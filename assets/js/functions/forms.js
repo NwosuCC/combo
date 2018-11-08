@@ -15,6 +15,7 @@ const FormHandlers = (function () {
 
       let values = FormUtil.values( formSelector );
       values.input = formInputs[ formId ];
+      // console.log('formId: '+formId+' | values: ', values);
 
       let formValues = FormHandlersObj.stripFormLabel(values);
       console.log('formId: '+formId+' | formValues: ', formValues);
@@ -37,20 +38,28 @@ const FormHandlers = (function () {
       });
       return newFormValues;
     },
-    getOption(value, text, options) {
+    addOptionElement(value, text, options) {
       let { selectedValue, title } = options;
       let selected = selectedValue === value ? 'selected="selected"' : '';
       title = title ? String(title) : '';
       return `<option value="${ value }" ${selected} title="${title}"> ${ text } </option>`
     },
-    getSelectOptions(optionsData, selectedValue) {
-      return [ FormHandlersObj.getOption('', '- select -', false) ]
+    setSelectOptions(optionsData, selectedValue) {
+      return [ FormHandlersObj.addOptionElement('', '- select -', false) ]
         .concat(
           optionsData.map( data => {
             let options = { selectedValue, title: data.title || '' };
-            return FormHandlersObj.getOption(data.value, data.text, options)
+            return FormHandlersObj.addOptionElement(data.value, data.text, options)
           })
         );
+    },
+    getOptionElement( parent, value ) {
+      if(typeof value === 'undefined') { value = parent.val(); }
+      return value !== '' && parent && parent.is('select') ? parent.find(`option[value="${value}"]`) : null;
+    },
+    getOptionText( elem ) {
+      let option = FormHandlersObj.getOptionElement( elem );
+      return (option && option.val() !== '' ? option.text() : '').trim();
     },
     showCountryLeagues( select_Country, select_League ) {
       let countryId = select_Country.val();
@@ -64,7 +73,7 @@ const FormHandlers = (function () {
 
         subGroup = subGroup.map( lg => { return { value: lg.id, text: lg.name }; });
 
-        $(this).html( FormHandlersObj.getSelectOptions(subGroup, leagueSelectedValue) );
+        $(this).html( FormHandlersObj.setSelectOptions(subGroup, leagueSelectedValue) );
       });
     },
     setLeagueCountry( select_League, select_Country ) {
@@ -89,7 +98,7 @@ const FormHandlers = (function () {
 
         subGroup = subGroup.map( cl => { return { value: cl.id, text: cl.name }; });
 
-        $(this).html( FormHandlersObj.getSelectOptions(subGroup, clubSelectedValue) );
+        $(this).html( FormHandlersObj.setSelectOptions(subGroup, clubSelectedValue) );
       });
     },
     setClubLeague( select_Club, select_League ) {
@@ -134,7 +143,7 @@ const FormHandlers = (function () {
       // console.log('addNewClub value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
 
       $('.select-clubs').each(function (i,e) {
-        $(this).append( FormHandlersObj.getOption( value, text, {} ) )
+        $(this).append( FormHandlersObj.addOptionElement( value, text, {} ) )
       });
     },
     addNewMatch( match ) {
@@ -151,15 +160,37 @@ const FormHandlers = (function () {
       // console.log('addNewMatch value: '+value+' | text: '+text+' | GLOBAL_VAR: ', GLOBAL_VAR);
 
       $('.select-matches').each(function (i,e) {
-        $(this).append( FormHandlersObj.getOption( value, text, { title }) )
+        $(this).append( FormHandlersObj.addOptionElement( value, text, { title }) )
       });
     },
-    addNewTicket( elem, value ) {
+    saveTempTicket( elem, value ) {
       let cleanValue = value.trim(), inValid = (/[^A-z0-9_]/gi).exec(cleanValue);
 
       if(elem && elem.is('select') && cleanValue && !inValid) {
-        GLOBAL_VAR.append('tickets', { id: cleanValue, name: cleanValue, bookings: [] });
-        elem.append( FormHandlersObj.getOption( cleanValue, cleanValue, {}) );
+        let selectedTicket = elem.val(), tickets = GLOBAL_VAR.get('tickets');
+
+        let exists = tickets.findIndex(t => t.name === cleanValue) >= 0;
+
+        let index = tickets.findIndex(t => t.id === selectedTicket), ticket = index >= 0 ? tickets[ index ] : null;
+
+        if(exists) {
+          throw new Error(`Ticket with name ${cleanValue} already exists`);
+        }
+
+        if(ticket) {
+          let newValues = { ...ticket, name: cleanValue };
+          GLOBAL_VAR.update( 'tickets', newValues, index);
+          FormHandlers.getOptionElement( elem, ticket.id ).text( cleanValue )
+        }
+        else{
+          let newValues = { id: cleanValue, name: cleanValue, bookings: [] };
+          GLOBAL_VAR.append( 'tickets', newValues );
+          elem.append( FormHandlersObj.addOptionElement( cleanValue, cleanValue, {}) );
+        }
+
+        elem.val(function () { return ticket ? selectedTicket : cleanValue; }).trigger('change');
+        // console.log('selectedTicket: ', selectedTicket, 'cleanValue: ', cleanValue, 'exists: ', exists, ' | index: ', index, ' | ticket: ', ticket, ' | tickets: ', GLOBAL_VAR.get('tickets'));
+
         return true;
       }
     },
@@ -168,13 +199,18 @@ const FormHandlers = (function () {
       values.input = formInputs[ formId ];
       values = FormHandlersObj.stripFormLabel( values );
 
-      let id_ticket = values.name, stake = values.stake;
+      let id_ticket = values.id, stake = values.stake;
+
+      let show_countDiv = $('#show_count'), ticket_count = $('#ticket_count');
+      show_countDiv.html( 0 );  ticket_count.val( 0 );
 
       let tickets = GLOBAL_VAR.get('tickets'), index = tickets.findIndex(t => t.id === id_ticket);
       let ticket = index >= 0 ? tickets[ index ] : null, name = ticket ? ticket.name : '';
+      // console.log('index :'+index+' | id_ticket: '+id_ticket+' | ticket: ', ticket, ' | values; ', values);
 
       if(ticket) {
-        let n = 1, valid = true, bookings = [], required = ['id_match','id_bet', 'odd'];
+        let n = 1, count = 0, bookings = [], required = ['id_match','id_bet', 'odd'];
+        let validRow = true,hasNextValues = true;
 
         do {
           let row = {
@@ -183,26 +219,37 @@ const FormHandlers = (function () {
           };
           row.odd = StringUtil.asNumber( row.odd );
 
-          valid = Object.keys(row).filter( k => required.includes(k) ).some( k => !!row[k] );
-          if( valid ) { bookings.push( row ); }
-          // console.log('valid :'+valid+' | n: '+n, ' | row; ', row);
+          validRow = Object.keys(row).filter( k => required.includes(k) ).some( k => !!row[k] );
 
-          n += valid ? 1 : -1;
+          if( validRow ) {
+            bookings.push( row );
+            count += 1;
+          }
+          // console.log('validRow :'+validRow+' | old n: '+n);
+
+          hasNextValues = required.map(key => key.replace('id_', '')).find( key => values.hasOwnProperty(`${key}_${n}`) );
+
+          n += hasNextValues ? 1 : -1;
+
+          // console.log('validRow :'+validRow+' | new n: '+n, ' | hasNextValues; '+ hasNextValues, ' | count: '+count);
         }
-        while(valid);
+        while(hasNextValues);
 
         let newValues = {
           name: name, stake: stake, status: "0", id: id_ticket, bookings: bookings
         };
-        // console.log('name :'+name, ' | newValues; ', newValues);
+        // console.log('n :'+n+' | name :'+name, ' | count; ', count);
 
         // if( ! newValues.length ) { return; }
-        if( n <= 0 ) { return; }
+        show_countDiv.html( count > 0 ? count : 0 );
+
+        if( count <= 0 ) { return; }
 
         (index >= 0) ? GLOBAL_VAR.update( 'tickets', newValues, index)  : GLOBAL_VAR.append( 'tickets', newValues );
         // console.log('new tickets:', GLOBAL_VAR.get('tickets'));
 
-        $('#ticket_count').val( n );
+        ticket_count.val( count > 0 ? count : 0 );
+        // console.log('n :'+n+' | ticket_count: '+ticket_count.val(), ' | count; ', count);
 
         $('[name^="ticket_odd"]').each(function (i,e) {
           if( $(this).val() === '0' ){ $(this).val('0.00'); }
@@ -211,14 +258,15 @@ const FormHandlers = (function () {
     },
     displayTicket( id_ticket ) {
       let tickets = GLOBAL_VAR.get('tickets'), ticket = tickets.find(t => t.id === id_ticket);
-      let ticketBookings = ticket ? ticket.bookings : [];
+      let ticketBookings = ticket && ticket.bookings ? ticket.bookings : [];
 
       if( ticket ) {
         $('#ticketForm')[0].reset();
 
-        $(`#ticket_name`).val( ticket.id );
+        $(`#ticket_id`).val( ticket.id );
         $(`#ticket_stake`).val( ticket.stake );
         $(`#ticket_count`).val( ticketBookings.length );
+        $(`#show_count`).html( ticketBookings.length );
 
         if(ticketBookings.length) {
           ticketBookings.forEach((book, i) => {

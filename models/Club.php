@@ -54,12 +54,13 @@ class Club extends Model {
         ];
 
         $club_key = str_replace(' ', '', $values[0]['key']);
+        $name = $values[0]['name'];
 
         $where = [
-            "_key = ?1 AND deleted = 0", [ $club_key ]
+            "(_key = ?1 OR name = ?2) AND deleted = 0", [ $club_key, $name ]
         ];
 
-        return $this->addRecord( [$table, $columns, $values, $where] );
+        return $this->db->insertUnique( $table, $columns, $values, $where );
     }
 
 }

@@ -16,30 +16,28 @@ class Booking extends Model {
     }
 
     public function schema() {
-        return [
-            'booking', ['id_match', 'id_bet', 'odd', 'id_ticket', 'outcome']
-        ];
+        return Schema::get('booking');
     }
 
     public function create( Ticket $ticket, Array $data ) {
-        $count = $data['count'];
-        $ticket_name = $data['name'];
+        $name = $data['name'];
         $ticket_id = $ticket->id();
 
-        if( !$ticket or !$ticket_id or $ticket_name !== $ticket->getName() ) {
-            throw new Error("Ticket with name [{$ticket_name}] not found");
+        if( !$ticket or !$ticket_id or !$name or $name !== $ticket->getName() ) {
+            throw new Error("Ticket [{$name}] not found");
         }
 
         list($table, $columns) = $this->schema();
-        $result_set = [];
+        $result_set = [];  $n = 0;
 
-        for($n = 1; $n <= $count; $n++) {
+        while( ++$n < 100 and array_key_exists("match_{$n}", $data)) {
             $match = (new Match( $data["match_{$n}"] ));
 
             if( $match->id() and ! $match->isStarted() ){
 
                 $values = [ Utils::arraySliceParts(["match_{$n}", "bet_{$n}", "odd_{$n}"], $data) ];
                 $values[0]['id_ticket'] = $ticket_id;
+                $values[0]['pos'] = $n;
                 $values[0]['outcome'] = '0';
 
                 $id_match = $values[0]["match_{$n}"];
@@ -51,11 +49,10 @@ class Booking extends Model {
                 ];
 
                 $where = [
-                    "id_match = ?1 AND id_ticket = ?2 AND deleted = 0", [ $id_match, $ticket_id ]
+                    "id_ticket = ?1 AND pos = ?2 AND deleted = 0", [ $ticket_id, $n ]
                 ];
 
-                $result_set[] = $this->addRecord( [$table, $columns, $values, $where], $update_values );
-
+                $result_set[] = $this->db->insertOrUpdate( $table, $columns, $values, $update_values );
             }
         }
 

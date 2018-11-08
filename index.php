@@ -4,6 +4,7 @@ include_once "env.php";
 include_once "misc/Test.php";
 include_once "misc/Utils.php";
 include_once "misc/Dates.php";
+include_once "misc/Schema.php";
 include_once "misc/DB.php";
 
 include_once "models/Model.php";

@@ -15,5 +15,9 @@ html,body,h1,h2,h3,h4,h5,h6 {
   padding: 10px;
 }
 
+.table thead tr th, .table tbody tr td {
+  border: solid 1px grey;
+}
+
 .match-table th:nth-child(8), .match-table td:nth-child(8) { border-left: double 10px }
 

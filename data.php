@@ -15,10 +15,6 @@ $tickets = (new Ticket())->withBookings();
 
 [$bookings, $groups] = (new Test())->run_PA();
 
-/*Utils::pr([
-    '$bookings' => $bookings,
-    '$groups' => $groups,
-]);*/
 
 $items = [
     [

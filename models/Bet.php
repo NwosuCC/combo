@@ -32,7 +32,7 @@ class Bet extends Model {
             "code = ?1 AND deleted = 0", [ $code ]
         ];
 
-        return $this->addRecord( [$table, $columns, $values, $where] );
+        return $this->db->insertUnique( $table, $columns, $values, $where );
     }
 
 }

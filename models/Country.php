@@ -36,12 +36,13 @@ class Country extends Model {
         ];
 
         $country = $values[0]['country'];
+        $iso_code = $values[0]['iso_code'];
 
         $where = [
-            "country = ?1 AND deleted = 0", [ $country ]
+            "(country = ?1 OR iso_code = ?2) AND deleted = 0", [ $country, $iso_code ]
         ];
 
-        return $this->addRecord( [$table, $columns, $values, $where] );
+        return $this->db->insertUnique( $table, $columns, $values, $where );
     }
 
 }

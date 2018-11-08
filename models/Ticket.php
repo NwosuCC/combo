@@ -12,8 +12,8 @@ class Ticket extends Model {
             $this->id = $record['id'];
             $this->name = $record['name'];
             $this->stake = $record['stake'];
-            $bookings = $this->withBookings( $this->id );
-            $this->bookings = $bookings ? $bookings[0]['bookings'] : [];
+            $ticket = $this->withBookings( $this->id );
+            $this->bookings = ($ticket and !empty($ticket[0]['bookings'])) ? $ticket[0]['bookings'] : [];
         }
     }
 
@@ -40,7 +40,7 @@ class Ticket extends Model {
         $placeholders = [];  $id_vars = [];
 
         foreach ($records as $i => $row) {
-            $placeholders[] = '?'.($i + 2);
+            $placeholders[] = '?'.($i + 1);
             $id_vars[] = $row['id'];
             $tickets[ $row['id'] ] = $row;
         }
@@ -129,16 +129,16 @@ class Ticket extends Model {
     }
 
     public function schema() {
-        return [
-            'ticket', ['name', 'stake', 'status']
-        ];
+        return Schema::get('ticket');
     }
 
     public function create(Array $data) {
         $count = $data['count'] or 0;
         $stake = $data['stake'] or 0;
+        $ticket_id = $data['id'];
+        $name = $data['name'];
 
-        if($count > 12){
+        if($count > 12) {
             throw new Error("Cannot push more than 12 bookings at a time");  // remove this
         }else if($stake < 50) {
             throw new Error("Minimum stake is 50");
@@ -149,15 +149,30 @@ class Ticket extends Model {
         $values = [ Utils::arraySliceParts(['name', 'stake'], $data) ];
         $values[0]['status'] = '0';
 
-        $where = [
-            "name = ?1 AND deleted = 0", [ $values[0]["name"] ]
-        ];
+        $where = [ "id = ?1 AND deleted = 0", [$ticket_id] ];
 
-        if($result = $this->addRecord( [$table, $columns, $values, $where] )) {
+        $result = false;
+
+        try {
+            $insert = $result = $this->db->insertUnique( $table, $columns, $values, $where );
+        }
+        catch (Error $e) {}
+
+        if(empty($insert)) {
+            $update_values = [ 'name' => $name, 'stake' => $stake ];
+
+            if( ! $update = $result = $this->db->update( $table, $update_values, $where )) {
+                $current_where = [ "id = ?1 AND name = ?2 AND deleted = 0", [$ticket_id, $name] ];
+
+                $result = $this->db->select( $table, $columns, $current_where )->first();
+            }
+        }
+
+        if( $result ) {
             $ticket = new Ticket( $result['id'] );
 
             if($booking = (new Booking())->create( $ticket, $data )) {
-                $result = $this->withBookings();
+                $result = $this->withBookings( $result['id'] );
             }
         }
 

@@ -172,50 +172,66 @@ $(document).ready(function () {
     }, '.select-search')*/
     .on({
       click() {
-        let addBtn = $(this).hasClass('add-btn'), okBtn = $(this).hasClass('ok-btn'), xBtn = $(this).hasClass('x-btn');
+        let addBtn = $(this).hasClass('add-btn'), editBtn = $(this).hasClass('edit-btn');
+        let okBtn = $(this).hasClass('ok-btn'), xBtn = $(this).hasClass('x-btn');
 
         let target = $(this).data('target'), targetElem = $(`#${target}`);
         let alt = targetElem.data('alt'), altElem = $(`#${alt}`);
+
         let result = true, value = '';
 
         if(target && targetElem && alt && altElem) {
           if(okBtn) {
             value = targetElem.val();
             switch ( target ) {
-              case 'new_ticket' : { result = FormHandlers.addNewTicket( altElem, value ); } break;
+              case 'ticket_name' : { result = FormHandlers.saveTempTicket( altElem, value ); } break;
             }
           }
 
           if(result) {
-            if(addBtn) {
-              targetElem.val('').parents(showHideClass).show();
+            if(addBtn || editBtn) {
+              targetElem.parents(showHideClass).show();
               altElem.parents(showHideClass).hide();
             }else{
-              targetElem.val('').parents(showHideClass).hide();
-              altElem.val(value).trigger('change').parents(showHideClass).show();
+              targetElem.parents(showHideClass).hide();
+              altElem.parents(showHideClass).show();
               if(okBtn) { FormHandlers.addTempBooking(); }
             }
           }
+
+          targetElem.val( FormHandlers.getOptionText( altElem ) );
         }
       }
-    }, '.add-btn, .ok-btn, .x-btn')
+    }, '.add-btn, .edit-btn, .ok-btn, .x-btn')
     .on({
       change() {
-        let id_ticket = $(this).val(), savedTickets = GLOBAL_VAR.get('savedTickets');
-        let saveBtn = $('#saveBooking'), spanNew = saveBtn.find('span.x-show'), spanUpdate = saveBtn.find('span.x-hide');
+        let id_ticket = $(this).val();
+        let tickets = GLOBAL_VAR.get('tickets'), ticket = tickets.find( t => t.id === id_ticket );
+        let savedTickets = GLOBAL_VAR.get('savedTickets'), savedTicket = savedTickets.find( t => t.id === id_ticket );
 
-        if( id_ticket ) { FormHandlers.displayTicket( id_ticket ); }
+        let editButtons = $('#editButtons'), saveBtn = $('#saveBooking');
+        let btnNew = editButtons.find('button.x-show'), btnUpdate = editButtons.find('button.x-hide');
+        let spanNew = saveBtn.find('span.x-show'), spanUpdate = saveBtn.find('span.x-hide');
 
-        if( id_ticket && savedTickets.find( t => t.id === id_ticket ) ) {
+        if( id_ticket ) {
+          btnNew.hide(); btnUpdate.show();
+          FormHandlers.displayTicket( id_ticket );
+          if( ticket ) { $('#ticket_name').val( ticket.name ); }
+        }else{
+          btnNew.show(); btnUpdate.hide();
+        }
+        // console.log('id_ticket: ', id_ticket, 'tickets: ', tickets.length, 'ticket: ', ticket, 'savedTickets: ', savedTickets.length, ' | savedTicket: ', savedTicket);
+
+        if( id_ticket && savedTicket ) {
           spanNew.hide(); spanUpdate.show();
         }else{
           spanNew.show(); spanUpdate.hide();
         }
       }
-    }, '#ticket_name')
+    }, '#ticket_id')
     .on({
       change() {
-        if( $(this).attr('id') === 'ticket_name' ) { return; }
+        if( $(this).attr('id') === 'ticket_id' ) { return; }
         FormHandlers.addTempBooking();
       }
     }, '#ticketForm input, #ticketForm select')

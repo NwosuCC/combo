@@ -95,7 +95,7 @@ class Match extends Model {
                 [ $home_team, $away_team, $league, $season ]
             ];
 
-            return ($home_team !== $away_team) ? $this->addRecord( [$table, $columns, $values, $where] ) : false;
+            return ($home_team !== $away_team) ? $this->db->insertUnique( $table, $columns, $values, $where ) : false;
         }
 
         return [];

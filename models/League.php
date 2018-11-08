@@ -53,15 +53,16 @@ class League extends Model  {
 
 //        $country = $values[0]['country'];
         $league_key = $values[0]['key'];
+        $name = $values[0]['name'];
 
 //        $country_model = (new Country())->find( $country )->queryString();
 
         $where = [
 //            "_key = ?1 AND deleted = 0 AND id_country = ( ?q2 )", [ $league_key, $country_model ]
-            "_key = ?1 AND deleted = 0", [ $league_key ]
+            "(_key = ?1 OR name = ?2) AND deleted = 0", [ $league_key, $name ]
         ];
 
-        return $this->addRecord( [$table, $columns, $values, $where] );
+        return $this->db->insertUnique( $table, $columns, $values, $where );
     }
 
 
