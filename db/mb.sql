@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `bet` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table bet: ~15 rows (approximately)
 /*!40000 ALTER TABLE `bet` DISABLE KEYS */;
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `booking` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ticket_pos` (`id_ticket`,`pos`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table booking: ~33 rows (approximately)
 /*!40000 ALTER TABLE `booking` DISABLE KEYS */;
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `club` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table club: ~29 rows (approximately)
 /*!40000 ALTER TABLE `club` DISABLE KEYS */;
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS `country` (
   UNIQUE KEY `country` (`country`),
   UNIQUE KEY `nationality` (`nationality`),
   UNIQUE KEY `iso_code` (`iso_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
 -- Dumping data for table country: ~43 rows (approximately)
 /*!40000 ALTER TABLE `country` DISABLE KEYS */;
@@ -228,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `league` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table league: ~18 rows (approximately)
 /*!40000 ALTER TABLE `league` DISABLE KEYS */;
@@ -270,7 +270,7 @@ CREATE TABLE IF NOT EXISTS `matches` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table matches: ~0 rows (approximately)
 /*!40000 ALTER TABLE `matches` DISABLE KEYS */;
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS `ticket` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=latin1;
 
 -- Dumping data for table ticket: ~10 rows (approximately)
 /*!40000 ALTER TABLE `ticket` DISABLE KEYS */;
