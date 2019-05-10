@@ -53,6 +53,10 @@ class Club extends Model {
             Utils::arraySliceParts(['key', 'name', 'code', 'league'], $data)
         ];
 
+        if( ! Utils::validateInput($values)){
+          return false;
+        }
+
         $club_key = str_replace(' ', '', $values[0]['key']);
         $name = $values[0]['name'];
 

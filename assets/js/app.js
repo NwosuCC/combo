@@ -1,13 +1,21 @@
 
-const SupplementaryData = (function() {
-  return {
-    years: (() => {
-      let years = [], currentYear = (new Date()).getFullYear();
-      for(let n = 9; n >= 0; n-- ){ years.push( currentYear - n ); }
-      return years;
-    })()
+const Spinner = {
+  show() {
+    $('.overlay').show();
+  },
+  hide() {
+    $('.overlay').hide();
   }
-})();
+};
+
+
+const SupplementaryData = {
+  years: (() => {
+    let years = [], currentYear = (new Date()).getFullYear();
+    for(let n = 9; n >= 0; n-- ){ years.push( currentYear - n ); }
+    return years;
+  })()
+};
 
 
 const updateModelRelations = (data) => {
@@ -61,6 +69,9 @@ const updateModelRelations = (data) => {
 
 // App Start
 $.ajaxSetup({
+  beforeSend: function () {
+    Spinner.show();
+  },
   url: "index.php",
   dataType: 'json',
   type: "GET",
@@ -69,7 +80,7 @@ $.ajaxSetup({
     console.log('Ajax error: ', error, '\n status: ', xhr);
   },
   complete: function (xhr, status) {
-
+    Spinner.hide();
   }
 });
 
@@ -81,16 +92,10 @@ $.ajax({
 
     result = { ...SupplementaryData, ...result };
 
-    console.log('Data: ', result);
-
     GLOBAL_VAR.set( 'data', result);
 
     const afterInit = () => {
-      setTimeout(() => {
-        let tickets = GLOBAL_VAR.get( 'tickets');
-        let accumulation = TicketHandler.run( tickets.length ? tickets[2].id : '', 'PA' );
-        console.log('ticket Id: '+tickets[2].id+' | accumulation: ', accumulation);
-      });
+      setTimeout(() => console.log('All set!'));
     };
 
     xnTPL()

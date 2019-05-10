@@ -28,14 +28,22 @@ class Booking extends Model {
         }
 
         list($table, $columns) = $this->schema();
-        $result_set = [];  $n = 0;
+        $result_set = [];
+        $n = 0;
 
         while( ++$n < 100 and array_key_exists("match_{$n}", $data)) {
             $match = (new Match( $data["match_{$n}"] ));
 
             if( $match->id() and ! $match->isStarted() ){
 
-                $values = [ Utils::arraySliceParts(["match_{$n}", "bet_{$n}", "odd_{$n}"], $data) ];
+                $values = [
+                  Utils::arraySliceParts(["match_{$n}", "bet_{$n}", "odd_{$n}"], $data)
+                ];
+
+//                if( ! Utils::validateInput($values)){
+//                  return false;
+//                }
+
                 $values[0]['id_ticket'] = $ticket_id;
                 $values[0]['pos'] = $n;
                 $values[0]['outcome'] = '0';
@@ -52,8 +60,14 @@ class Booking extends Model {
                     "id_ticket = ?1 AND pos = ?2 AND deleted = 0", [ $ticket_id, $n ]
                 ];
 
-                $result_set[] = $this->db->insertOrUpdate( $table, $columns, $values, $update_values );
+                $result_set[] = [ $table, $columns, $values, $update_values ];
             }
+        }
+
+        foreach ($result_set as $i => $item){
+          list( $table, $columns, $values, $update_values ) = $item;
+
+          $result_set[ $i ] = $this->db->insertOrUpdate( $table, $columns, $values, $update_values );
         }
 
         return $result_set;

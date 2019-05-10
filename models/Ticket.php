@@ -137,6 +137,11 @@ class Ticket extends Model {
         list($table, $columns) = $this->schema();
 
         $values = [ Utils::arraySliceParts(['name', 'stake'], $data) ];
+
+        if( ! Utils::validateInput($values)){
+          return false;
+        }
+
         $values[0]['status'] = '0';
 
         $where = [ "id = ?1 AND deleted = 0", [$ticket_id] ];
