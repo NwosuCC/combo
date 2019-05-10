@@ -17,21 +17,9 @@ class Ticket extends Model {
         }
     }
 
-    public function getName() { return $this->name; }
-
-    /*protected function with( $class_name ) {
-        switch($class_name) {
-            case 'Booking' : { $sub_model = new Booking(); } break;
-        }
-
-        if(!empty($sub_model)) {
-            $sub_modelSchema = $sub_model->schema();
-
-            return parent::with( $sub_modelSchema )->get()->all();
-        }
-
-        return [];
-    }*/
+    public function getName() {
+      return $this->name;
+    }
 
     public function withBookings( $id = '' ): array {
         $records = $this->get( $id )->all();
@@ -66,11 +54,13 @@ class Ticket extends Model {
         return $this->bookings;
     }
 
-    /*public function getCombinations(int $r): array {
+    public function getCombinations(int $r): array {
         $n = $this->gamesCount();
+
         // do combinations: n C r = n! / (r! * (n-r)!)
+
         return [];
-    }*/
+    }
 
     public function getPartialAccumulation(int $games_per_slip = 0, int $slips = 1, int $interval = 0): array {
         $bookings = $this->getGames();

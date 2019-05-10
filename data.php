@@ -13,9 +13,9 @@ $bets = (new Bet())->get()->all();
 $tickets = (new Ticket())->withBookings();
 
 
-[$bookings, $groups] = (new Test())->run_PA();
+[$bookings, $groups] = (new Test())->run_PA(3);
 
-
+// ToDo: implement Data Source
 $items = [
     [
         'match' => 'CHL -:- ARS', 'bet' => '1X', 'odd' => '1.85', 'code' => '47925', 'won' => true,
@@ -59,9 +59,18 @@ $labels = ['Match', /*'Code',*/ 'Bet', 'Odd'];
 // Ajax Response Data
 echo json_encode(
     compact(
-        'items', 'opts', 'games', 'labels',
-        'countries', 'leagues', 'clubs', 'matches',
-        'bets', 'tickets', 'bookings', 'groups'
+        'items',
+        'opts',
+        'games',
+        'labels',
+        'countries',
+        'leagues',
+        'clubs',
+        'matches',
+        'bets',
+        'tickets',
+        'bookings',
+        'groups'
     )
 );
 

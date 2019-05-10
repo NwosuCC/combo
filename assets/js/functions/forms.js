@@ -163,6 +163,11 @@ const FormHandlers = (function () {
         $(this).append( FormHandlersObj.addOptionElement( value, text, { title }) )
       });
     },
+    getTicket( ticketId ) {
+      let tickets = GLOBAL_VAR.get('tickets');
+      let index = tickets.findIndex(t => t.id === ticketId), ticket = index >= 0 ? tickets[ index ] : null;
+      return [ index, ticket ];
+    },
     saveTempTicket( elem, value ) {
       let cleanValue = value.trim(), inValid = (/[^A-z0-9_]/gi).exec(cleanValue);
 
@@ -171,7 +176,8 @@ const FormHandlers = (function () {
 
         let exists = tickets.findIndex(t => t.name === cleanValue) >= 0;
 
-        let index = tickets.findIndex(t => t.id === selectedTicket), ticket = index >= 0 ? tickets[ index ] : null;
+        // let index = tickets.findIndex(t => t.id === selectedTicket), ticket = index >= 0 ? tickets[ index ] : null;
+        let [ index, ticket ] = FormHandlersObj.getTicket( selectedTicket );
 
         if(exists) {
           throw new Error(`Ticket with name ${cleanValue} already exists`);

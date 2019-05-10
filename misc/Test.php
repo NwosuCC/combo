@@ -12,7 +12,7 @@ class Test {
         $this->interval = $interval;
     }
 
-    public function run_PA($ticket_id = '3'): array {
+    public function run_PA($ticket_id): array {
         // Partial Accumulator
         return $this->run($ticket_id, 'PA');
     }
@@ -33,6 +33,7 @@ class Test {
                 }
             } catch (Error $error) {}
         }
+
         return $dummy;
     }
 

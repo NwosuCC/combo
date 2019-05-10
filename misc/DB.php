@@ -1,6 +1,9 @@
 <?php
-/*
- * Very basic DB library; secure still.
+/**
+ * Very basic DB library. Secure still !!
+ *
+ * @Author: Cyprian Nwosu
+ * Date: 10/19/2018
  */
 
 class DB {
@@ -33,7 +36,6 @@ class DB {
         ];
 
         if(empty($codes[$code])){ $code = '01'; }
-//        die(json_encode(['code' => $code, 'error' => $codes[$code]]));
         throw new Error( $codes[$code], $code );
     }
 
@@ -41,12 +43,14 @@ class DB {
         switch ($queryType) {
             case 'insert' : {
                 list($columns, $values) = $vars;
+
                 if(empty($columns) or !is_array($columns) or empty($values) or !is_array($values)
                     or !is_array($values[0]) or count($columns) !== count($values[0])){
                     $error = 'DB::insert() requires valid Array $columns and Array $values.';
                     $syntax1 = 'Array $columns: ["fruit","tally","isFavourite"]';
                     $syntax2 = 'Array $values: [ ["pear",23,false], ["apple",57,true], ["orange",30,true] ]';
                 }
+
             } break;
 
             case 'update' : {
@@ -67,11 +71,9 @@ class DB {
     }
 
     private function run_multi_sql(Array $queries, Array $labels = [], $use_result = false){
-//        if(!is_array($queries)){ $queries = explode(';', $queries); }
         if( trim( end($queries) ) == ''){ array_pop($queries); }
         $queriesCount = count($queries);
 
-//        if(!is_array($labels)){ $labels = explode(',', $labels); }
         if( trim( end($labels) ) == ''){ array_pop($labels); }
         $labelsCount = count($labels);
 
@@ -81,11 +83,6 @@ class DB {
         }
 
         $this->sql_string = implode(';', $queries);
-        
-        /*$this->sql_string = "SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'fee' AND sub2 = 'percent' ;
-SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'fee' AND sub2 = 'amount' ;
-SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'limit' AND sub2 = 'minimum' ;
-SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'limit' AND sub2 = 'maximum';";*/
 
         $fetch = [];
 
@@ -131,13 +128,6 @@ SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'limit' AND sub2 = '
         return $sql_string;
     }
 
-    /* Example usage: Shows usage of the 'q|' modifier ( also implemented in 'DB::where()' method )
-     *  $delivery = "IF( MINUTE( TIMEDIFF(now(), created_at) ) BETWEEN 1 AND 2, 1, delivery)";
-        $update_values = [
-            'p_total' => $total, 'p_current' => $current, 'hits' => 'q|hits + 1',
-            'count' => $reviewsCount, 'delivery' => "q|$delivery"
-        ];
-     */
     private function add_single_quotes(Array $values){
         foreach($values as $key => $value){
             $quote_index = strpos($value,"'");
@@ -316,5 +306,3 @@ SELECT * FROM settings WHERE name = 'withdrawal' AND sub1 = 'limit' AND sub2 = '
     }
 
 }
-
-?>

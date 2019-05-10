@@ -5,9 +5,9 @@ $_ENV = [
 
     'database' => [
         'host' => 'localhost',
-        'user' => 'user',
-        'password' => 'secret',
-        'db' => 'dbname'
+        'db' => 'database_name',
+        'user' => 'username',
+        'password' => 'secret'
     ],
 ];
 

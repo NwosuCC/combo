@@ -112,8 +112,10 @@ const StringUtil = (function () {
       if(!isNaN(value)){ value = Number(value); }
       return ! ObjectUtil.isEmpty( value ) ? value : '';
     },
-    /* ===========================
-     * Specifically for this App */
+
+    /* ===================================================================== *
+     * Specifically for this App
+     * --------------------------------------------------------------------*/
     asSeason(year) {
       if(isNaN(year) || String(year).length !== 4) { return ''; }
       return String(year) + ' / ' + String(year + 1);
@@ -144,8 +146,6 @@ const FormUtil = (function () {
         if( el.hasClass('input-currency')){
           el.val(function(){ return StringUtil.asNumber( $(this).val() ); });
         }
-        // console.log('element at index '+i+' name: '+name+' | id; '+id+' | type: '+type+' | tagName: '+tagName);
-        // console.log('element at index '+i+': ', el);
 
         switch(type){
           case 'checkbox': case 'radio': {

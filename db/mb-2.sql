@@ -9,7 +9,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
--- Dumping structure for table bet
+-- Dumping structure for table mb.bet
 CREATE TABLE IF NOT EXISTS `bet` (
   `id` bigint(15) NOT NULL AUTO_INCREMENT,
   `code` varchar(127) NOT NULL,
@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS `bet` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table bet: ~15 rows (approximately)
+-- Dumping data for table mb.bet: ~15 rows (approximately)
 /*!40000 ALTER TABLE `bet` DISABLE KEYS */;
 INSERT INTO `bet` (`code`, `description`) VALUES
   ('1', 'Home win'),
@@ -42,7 +42,7 @@ INSERT INTO `bet` (`code`, `description`) VALUES
 /*!40000 ALTER TABLE `bet` ENABLE KEYS */;
 
 
--- Dumping structure for table booking
+-- Dumping structure for table mb.booking
 CREATE TABLE IF NOT EXISTS `booking` (
   `id` bigint(15) NOT NULL AUTO_INCREMENT,
   `id_ticket` bigint(15) NOT NULL,
@@ -57,9 +57,9 @@ CREATE TABLE IF NOT EXISTS `booking` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ticket_pos` (`id_ticket`,`pos`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table booking: ~33 rows (approximately)
+-- Dumping data for table mb.booking: ~29 rows (approximately)
 /*!40000 ALTER TABLE `booking` DISABLE KEYS */;
 INSERT INTO `booking` (`id_ticket`, `pos`, `id_match`, `id_bet`, `odd`, `outcome`) VALUES
   (2, 1, 11, '3', 1.75, 0),
@@ -98,7 +98,7 @@ INSERT INTO `booking` (`id_ticket`, `pos`, `id_match`, `id_bet`, `odd`, `outcome
 /*!40000 ALTER TABLE `booking` ENABLE KEYS */;
 
 
--- Dumping structure for table club
+-- Dumping structure for table mb.club
 CREATE TABLE IF NOT EXISTS `club` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `_key` varchar(63) DEFAULT NULL,
@@ -110,9 +110,9 @@ CREATE TABLE IF NOT EXISTS `club` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table club: ~29 rows (approximately)
+-- Dumping data for table mb.club: ~27 rows (approximately)
 /*!40000 ALTER TABLE `club` DISABLE KEYS */;
 INSERT INTO `club` (`_key`, `code`, `name`, `id_league`) VALUES
   ('chelsea', 'CHE', 'Chelsea', 1),
@@ -143,13 +143,11 @@ INSERT INTO `club` (`_key`, `code`, `name`, `id_league`) VALUES
   ('RealMadrid', 'RMA', 'Real Madrid', 4),
   ('espanyol', 'ESP', 'Espanyol', 4),
   ('eibar', 'EIB', 'Eibar', 4),
-  ('deportivo', 'DLC', 'Deportivo La Coruna', 8),
-  ('monaco', 'MNA', 'Monaco', 7),
-  ('angers', 'AGR', 'Angers', 7);
+  ('deportivo', 'DLC', 'Deportivo La Coruna', 8);
 /*!40000 ALTER TABLE `club` ENABLE KEYS */;
 
 
--- Dumping structure for table country
+-- Dumping structure for table mb.country
 CREATE TABLE IF NOT EXISTS `country` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `country` varchar(200) NOT NULL,
@@ -165,9 +163,9 @@ CREATE TABLE IF NOT EXISTS `country` (
   UNIQUE KEY `country` (`country`),
   UNIQUE KEY `nationality` (`nationality`),
   UNIQUE KEY `iso_code` (`iso_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Dumping data for table country: ~43 rows (approximately)
+-- Dumping data for table mb.country: ~43 rows (approximately)
 /*!40000 ALTER TABLE `country` DISABLE KEYS */;
 INSERT INTO `country` (`country`, `nationality`, `iso_code`, `phone_code`) VALUES
   ('USA', 'American', 'US', '1'),
@@ -216,7 +214,7 @@ INSERT INTO `country` (`country`, `nationality`, `iso_code`, `phone_code`) VALUE
 /*!40000 ALTER TABLE `country` ENABLE KEYS */;
 
 
--- Dumping structure for table league
+-- Dumping structure for table mb.league
 CREATE TABLE IF NOT EXISTS `league` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `_key` varchar(63) DEFAULT NULL,
@@ -228,33 +226,33 @@ CREATE TABLE IF NOT EXISTS `league` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table league: ~18 rows (approximately)
+-- Dumping data for table mb.league: ~18 rows (approximately)
 /*!40000 ALTER TABLE `league` DISABLE KEYS */;
 INSERT INTO `league` (`_key`, `name`, `id_country`, `status`) VALUES
-  ('EPL', 'English Premier League', 3, 1),
-  ('EngChamp', 'Championship', 3, 1),
-  ('BraSerieA', 'Serie A', 9, 1),
-  ('LaLiga', 'La Liga', 41, 1),
-  ('ItaSerieA', 'Serie A', 25, 1),
-  ('ItaSerieB', 'Serie B', 25, 1),
-  ('FraLigue1', 'Ligue 1', 19, 1),
-  ('FraLigue2', 'Ligue 2', 19, 1),
-  ('GerBundesliga', 'Bundesliga', 20, 1),
-  ('Ger2Bundesliga', '2.Bundesliga', 20, 1),
-  ('MLS', 'Major League Soccer', 1, 1),
-  ('ScoPremier', 'Premier League', 4, 1),
-  ('BraSerieB', 'Serie B', 9, 1),
-  ('NetEredivisie', 'Eredivisie', 31, 1),
-  ('NetErsteDivisie', 'Erste Divisie', 31, 1),
-  ('HunOTPBankLiga', 'OTP Bank Liga', 22, 1),
-  ('JpnJLeague', 'J League', 26, 1),
-  ('WelshPremier', 'Welsh Premier League', 5, 1);
+  ('EPL', 'English Premier League', 5, 1),
+  ('EngChamp', 'Championship', 5, 1),
+  ('BraSerieA', 'Serie A', 36, 1),
+  ('LaLiga', 'La Liga', 210, 1),
+  ('ItaSerieA', 'Serie A', 112, 1),
+  ('ItaSerieB', 'Serie B', 112, 1),
+  ('FraLigue1', 'Ligue 1', 81, 1),
+  ('FraLigue2', 'Ligue 2', 81, 1),
+  ('GerBundesliga', 'Bundesliga', 88, 1),
+  ('Ger2Bundesliga', '2.Bundesliga', 88, 1),
+  ('MLS', 'Major League Soccer', 3, 1),
+  ('ScoPremier', 'Premier League', 6, 1),
+  ('BraSerieB', 'Serie B', 36, 1),
+  ('NetEredivisie', 'Eredivisie', 160, 1),
+  ('NetErsteDivisie', 'Erste Divisie', 160, 1),
+  ('HunOTPBankLiga', 'OTP Bank Liga', 105, 1),
+  ('JpnJLeague', 'J League', 114, 1),
+  ('WelshPremier', 'Welsh Premier League', 7, 1);
 /*!40000 ALTER TABLE `league` ENABLE KEYS */;
 
 
--- Dumping structure for table matches
+-- Dumping structure for table mb.matches
 CREATE TABLE IF NOT EXISTS `matches` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `season` varchar(63) NOT NULL,
@@ -270,28 +268,18 @@ CREATE TABLE IF NOT EXISTS `matches` (
   `deleted` tinyint(1) NOT NULL DEFAULT '0',
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table matches: ~0 rows (approximately)
+-- Dumping data for table mb.matches: ~11 rows (approximately)
 /*!40000 ALTER TABLE `matches` DISABLE KEYS */;
 INSERT INTO `matches` (`season`, `id_club_1`, `id_club_2`, `id_league`, `date`, `time`, `status`, `id_stadium`) VALUES
-  ('2017 / 2018', 6, 9, 1, '2018-05-16', '14:00:00', 0, 0),
+  ('2017 / 2018', 6, 9, 1, '2017-05-16', '14:00:00', 0, 0),
   ('2018 / 2019', 8, 3, 1, '2018-10-29', '10:00:00', 0, 0),
-  ('2018 / 2019', 1, 2, 1, '2018-02-02', '17:00:00', 0, 0),
-  ('2017 / 2018', 24, 22, 5, '2017-10-10', '19:45:00', 0, 0),
-  ('2018 / 2019', 4, 5, 1, '2018-10-30', '03:00:00', 0, 0),
-  ('2018 / 2019', 20, 7, 1, '2018-10-30', '15:00:00', 0, 0),
-  ('2018 / 2019', 15, 12, 1, '2018-10-31', '16:00:00', 0, 0),
-  ('2018 / 2019', 18, 10, 1, '2018-11-04', '13:30:00', 0, 0),
-  ('2018 / 2019', 25, 23, 7, '2018-11-04', '12:45:00', 0, 0),
-  ('2018 / 2019', 28, 27, 4, '2018-11-04', '19:45:00', 0, 0),
-  ('2018 / 2019', 26, 29, 4, '2018-11-10', '19:45:00', 0, 0),
-  ('2018 / 2019', 16, 19, 1, '2018-11-11', '16:00:00', 0, 0),
-  ('2017 / 2018', 31, 30, 7, '2018-01-23', '16:00:00', 0, 0);
+  ('2018 / 2019', 1, 2, 1, '2018-02-02', '17:00:00', 0, 0);
 /*!40000 ALTER TABLE `matches` ENABLE KEYS */;
 
 
--- Dumping structure for table ticket
+-- Dumping structure for table mb.ticket
 CREATE TABLE IF NOT EXISTS `ticket` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(60) NOT NULL,
@@ -303,9 +291,9 @@ CREATE TABLE IF NOT EXISTS `ticket` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- Dumping data for table ticket: ~10 rows (approximately)
+-- Dumping data for table mb.ticket: ~9 rows (approximately)
 /*!40000 ALTER TABLE `ticket` DISABLE KEYS */;
 INSERT INTO `ticket` (`name`, `stake`, `status`) VALUES
   ('Combo', 50, 0),

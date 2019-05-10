@@ -14,21 +14,6 @@ abstract class Schema {
         return self::$schema;
     }
 
-    /*public static function set( $table, Array $columns ) {
-        preg_match("[^A-z0-9_]", $table, $invalid_characters);
-
-        if( ! $table or $invalid_characters ) {
-            throw new Error("Schema table name [{$table}] is required");
-        }
-        else if( $invalid_characters ) {
-            throw new Error("Schema table name [{$table}] must not contain {$invalid_characters}");
-        }
-        else if ( ! $columns ) {
-
-        }
-
-    }*/
-
     private static $schema = [
         'ticket' => ['name', 'stake', 'status'],
 

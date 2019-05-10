@@ -1,9 +1,9 @@
 <?php
 
-
 $result = [];
 
 if(empty( $_POST['input'] )) {
+
     $result = ['error' => 'Unknown error!'];
 
 }else{
