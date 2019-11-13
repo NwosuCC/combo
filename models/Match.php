@@ -68,8 +68,13 @@ class Match extends Model {
         ];
     }
 
-    public function create(Array $data) {
-        $country = (new Country( $data['country'] ));
+    public function create(Array $data)
+    {
+      if( ! Utils::validateInput($data)){
+        return false;
+      }
+
+      $country = (new Country( $data['country'] ));
         $league = (new League( $data['league'] ));
 
         $datetime = trim( $data['date'] . ' ' . $data['time'] );

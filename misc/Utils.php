@@ -2,7 +2,7 @@
 
 class Utils {
 
-    public static function pr(Array $var) {
+    public static function pr(array $var) {
         foreach ($var as $key => $value) {
             echo $key . ': ' . json_encode($value); echo '<br>';
         }
@@ -29,6 +29,25 @@ class Utils {
         }
         extract($array);
         return compact($parts);
+    }
+
+    public static function stripEmpty(array $values)
+    {
+      return array_filter($values, function ($val){
+
+        if(is_string($val) || is_numeric($val)){
+          $val = trim($val);
+        }
+
+        return $val !== '';
+      });
+    }
+
+    public static function validateInput(array $values)
+    {
+      $ok_values = static::stripEmpty( $values );
+
+      return array_diff_key($ok_values, $values);
     }
 
 }

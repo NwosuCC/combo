@@ -29,20 +29,24 @@ class Country extends Model {
     }
 
     public function create(Array $data) {
-        list($table, $columns) = $this->schema();
+      list($table, $columns) = $this->schema();
 
-        $values = [
-            Utils::arraySliceParts($columns, $data)
-        ];
+      $values = [
+          Utils::arraySliceParts($columns, $data)
+      ];
 
-        $country = $values[0]['country'];
-        $iso_code = $values[0]['iso_code'];
+      if( ! Utils::validateInput($values)){
+        return false;
+      }
 
-        $where = [
-            "(country = ?1 OR iso_code = ?2) AND deleted = 0", [ $country, $iso_code ]
-        ];
+      $country = $values[0]['country'];
+      $iso_code = $values[0]['iso_code'];
 
-        return $this->db->insertUnique( $table, $columns, $values, $where );
+      $where = [
+        "(country = ?1 OR iso_code = ?2) AND deleted = 0", [ $country, $iso_code ]
+      ];
+
+      return $this->db->insertUnique( $table, $columns, $values, $where );
     }
 
 }

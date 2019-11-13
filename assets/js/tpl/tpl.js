@@ -430,6 +430,7 @@ const xnTPL = (function() {
       }
 
       new Promise( (resolve, reject) => {
+
         dataKeys.forEach( (key, index) => {
           TPL.vars = { ...TPL.vars, ...data[ key ] };
           if( (index+1) >= dataKeys.length ){ resolve(true); }
@@ -438,13 +439,20 @@ const xnTPL = (function() {
       }).then(() => {
         initFunctions.forEach( callback => { callback.call(undefined); });
 
-        if( typeof afterInit === 'function') { afterInit.call(undefined); }
+        if( typeof afterInit === 'function') {
+          afterInit.call(undefined);
+        }
+
+        // Display TplDOM
+        Spinner.hide();
 
       }).catch((error) => {
         console.log('Init error: ', error);
       });
     }
   };
+  /* ----------------------------------------------
+   * =======  P U B L I C   A P I  ENDS  =========*/
 
 });
 

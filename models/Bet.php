@@ -26,6 +26,10 @@ class Bet extends Model {
             Utils::arraySliceParts(['code', 'description'], $data)
         ];
 
+        if( ! Utils::validateInput($values)){
+          return false;
+        }
+
         $code = $values[0]['code'];
 
         $where = [

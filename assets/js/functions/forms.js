@@ -18,14 +18,14 @@ const FormHandlers = (function () {
       // console.log('formId: '+formId+' | values: ', values);
 
       let formValues = FormHandlersObj.stripFormLabel(values);
-      console.log('formId: '+formId+' | formValues: ', formValues);
+      // console.log('formId: '+formId+' | formValues: ', formValues);
 
       $.ajax({
         type: "POST",
         data: formValues ,
         success: function(result, status, xhr){
           $(formSelector)[0].reset();
-          console.log('Input: ', result);
+          // console.log('Input: ', result);
           FormHandlersObj.updateGlobalVars( values.input, result.data );
         },
       });
