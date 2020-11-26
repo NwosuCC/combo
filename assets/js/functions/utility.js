@@ -9,11 +9,16 @@ const ObjectUtil = (function () {
       const Empties = ['undefined', 'null', 'NaN', 'false', '0', ''];
       return !Array.isArray(value) && Empties.includes( String(value).trim() );
     },
-    spliceObject(keys, obj, newObj) {
-      if( typeof newObj !== 'object'){ newObj = {}; }
-
-      keys.forEach( k => { newObj[ k ] = obj.hasOwnProperty(k) ? obj[ k ] : null; });
-
+    isObject(obj) {
+      return !ObjectUtilObj.isEmpty(obj) && isNaN(obj.length);
+    },
+    subset(obj, keys, newObj) {
+      if(!ObjectUtilObj.isObject(newObj)){
+        newObj = {};
+      }
+      keys.forEach(key => {
+        newObj[key] = obj.hasOwnProperty(key) ? obj[key] : null;
+      });
       return newObj;
     },
     getObjectValue(path, originalObj) {

@@ -99,10 +99,18 @@ $.ajax({
     };
 
     xnTPL()
-      .pipes( StringUtil )
-      .init({
-        data_1: GLOBAL_VAR.get(), data_2: { org: { test: true } }
-      }, afterInit);
+      .pipes(
+        StringUtil
+      )
+      .init(
+        {
+          data_1: GLOBAL_VAR.get(),
+          data_2: {
+            org: { test: true }
+          }
+        },
+        afterInit
+      );
   },
 });
 

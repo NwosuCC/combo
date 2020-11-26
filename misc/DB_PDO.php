@@ -6,14 +6,15 @@
  * Date: 10/19/2018
  */
 
-class DB {
+class DB_PDO {
     private static $connection;
     private $sql_string = '', $result, $rows = [];
 
     public function __construct(){
         $host = $user = $password = $db = '';
         extract($_ENV['database'], EXTR_OVERWRITE);
-        static::$connection = new MySQLi($host, $user, $password, $db);
+        $dsn = "mysql:dbname={$db};host={$host}";
+        static::$connection = new PDO($dsn, $user, $password);
     }
 
     private function escape(Array $values){
